@@ -6,4 +6,6 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
 }
 echo "<h2>👩‍🏫 Welcome Teacher " . $_SESSION['name'] . "</h2>";
 ?>
+<a href="add_attendance.php">📌 Mark Attendance</a>
+
 <a href='addmark.php'>Add Marks</a> | <a href='logout.php'>Logout</a>

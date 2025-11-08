@@ -1,8 +1,9 @@
 <?php
 session_start();
 include("db.php");
+require('fpdf.php'); // Make sure fpdf.php is in the same folder
 
-// ✅ Correct admin session
+// ✅ Only admin can access
 if(!isset($_SESSION['role']) || $_SESSION['role'] != "admin"){
     header("Location: index.php");
     exit;
@@ -50,7 +51,81 @@ while($gr = mysqli_fetch_assoc($grade_query)){
 }
 $grade_labels_json = json_encode($grade_labels);
 $grade_counts_json = json_encode($grade_counts);
+
+// --- PDF Generation function ---
+function generate_pdf($conn, $grade, $type, $date_or_month){
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial','B',16);
+
+    if($type == 'daily'){
+        $pdf->Cell(0,10,"Daily Attendance Report - Grade $grade ($date_or_month)",0,1,'C');
+        $query = "SELECT s.id, s.name, s.course, a.status
+                  FROM students s
+                  LEFT JOIN attendance a ON s.id = a.student_id AND a.date='$date_or_month'
+                  WHERE s.grade='$grade'";
+    } else { // monthly
+        $pdf->Cell(0,10,"Monthly Attendance Report - Grade $grade ($date_or_month)",0,1,'C');
+        $query = "SELECT s.id, s.name, s.course, 
+                         SUM(CASE WHEN a.status='Present' THEN 1 ELSE 0 END) as present_count,
+                         SUM(CASE WHEN a.status='Absent' THEN 1 ELSE 0 END) as absent_count
+                  FROM students s
+                  LEFT JOIN attendance a ON s.id = a.student_id AND a.date LIKE '$date_or_month%'
+                  WHERE s.grade='$grade'
+                  GROUP BY s.id";
+    }
+
+    $res = mysqli_query($conn, $query);
+    if(!$res){ die("SQL Error: ".mysqli_error($conn)); }
+
+    // Table header
+    $pdf->SetFont('Arial','B',12);
+    if($type=='daily'){
+        $pdf->Cell(20,10,'ID',1);
+        $pdf->Cell(50,10,'Name',1);
+        $pdf->Cell(50,10,'Course',1);
+        $pdf->Cell(30,10,'Status',1);
+    } else {
+        $pdf->Cell(20,10,'ID',1);
+        $pdf->Cell(50,10,'Name',1);
+        $pdf->Cell(30,10,'Present',1);
+        $pdf->Cell(30,10,'Absent',1);
+    }
+    $pdf->Ln();
+
+    // Table data
+    $pdf->SetFont('Arial','',12);
+    while($row = mysqli_fetch_assoc($res)){
+        if($type=='daily'){
+            $pdf->Cell(20,10,$row['id'],1);
+            $pdf->Cell(50,10,$row['name'],1);
+            $pdf->Cell(50,10,$row['course'],1);
+            $pdf->Cell(30,10,$row['status'] ?? 'Absent',1);
+        } else {
+            $pdf->Cell(20,10,$row['id'],1);
+            $pdf->Cell(50,10,$row['name'],1);
+            $pdf->Cell(30,10,$row['present_count'],1);
+            $pdf->Cell(30,10,$row['absent_count'],1);
+        }
+        $pdf->Ln();
+    }
+
+    $filename = "Attendance_Report_{$grade}_{$type}_{$date_or_month}.pdf";
+    $pdf->Output('D', $filename);
+    exit;
+}
+
+// --- Handle PDF Download ---
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    if(isset($_POST['daily_report']) && !empty($_POST['grade']) && !empty($_POST['date'])){
+        generate_pdf($conn, $_POST['grade'], 'daily', $_POST['date']);
+    }
+    if(isset($_POST['monthly_report']) && !empty($_POST['grade']) && !empty($_POST['month'])){
+        generate_pdf($conn, $_POST['grade'], 'monthly', $_POST['month']);
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,7 +134,6 @@ $grade_counts_json = json_encode($grade_counts);
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Same CSS as before */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:#f8fafc;color:#333;line-height:1.6;}
 .container{max-width:1300px;margin:40px auto;padding:20px;}
@@ -68,8 +142,6 @@ header h2{font-weight:600;}
 .action-bar{margin:20px 0;display:flex;flex-wrap:wrap;gap:10px;}
 .action-bar a{background:#007bff;color:white;padding:8px 14px;text-decoration:none;border-radius:6px;font-size:14px;font-weight:500;transition:0.3s;}
 .action-bar a:hover{background:#0056b3;}
-.action-bar a.teachers{background:#6f42c1;}
-.action-bar a.teachers:hover{background:#5a3499;}
 .search-form{margin-left:auto;display:flex;gap:10px;}
 .search-form input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:250px;}
 .search-form button{background:#28a745;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;transition:0.3s;}
@@ -96,7 +168,7 @@ canvas{max-width:100%;}
 
 <div class="action-bar">
   <a href="add_student.php">➕ Add Student</a>
-  <a href="teachers.php" class="teachers">👩‍🏫 Teachers Details</a>
+  <a href="teachers.php">👩‍🏫 Teachers Details</a>
   <a href="students_marks.php">📝 Students Marks</a>
   <a href="export.php">⬇️ Export to Excel</a>
   <a href="logout.php">🚪 Logout</a>
@@ -105,6 +177,27 @@ canvas{max-width:100%;}
       <button type="submit">Search</button>
   </form>
 </div>
+
+<!-- Attendance Reports -->
+<h3 style="color:#007bff;margin-top:30px;">📄 Attendance Reports</h3>
+<form method="POST" style="margin-bottom:20px;">
+    <label>Grade:</label>
+    <select name="grade" required>
+        <option value="">--Select Grade--</option>
+        <?php
+        $grades = mysqli_query($conn, "SELECT DISTINCT grade FROM students ORDER BY grade ASC");
+        while($g = mysqli_fetch_assoc($grades)){
+            echo "<option value='{$g['grade']}'>{$g['grade']}</option>";
+        }
+        ?>
+    </select>
+    <label>Date (Daily):</label>
+    <input type="date" name="date" value="<?= date('Y-m-d') ?>">
+    <label>Month (Monthly):</label>
+    <input type="month" name="month" value="<?= date('Y-m') ?>">
+    <button type="submit" name="daily_report">📄 Download Daily PDF</button>
+    <button type="submit" name="monthly_report">📄 Download Monthly PDF</button>
+</form>
 
 <!-- Students Table -->
 <h3 style="color:#007bff;margin-bottom:10px;">👩‍🎓 All Students</h3>
@@ -151,14 +244,10 @@ canvas{max-width:100%;}
 </div>
 
 </div>
-
 <script>
 new Chart(document.getElementById('courseChart'), {
   type:'doughnut',
-  data:{
-    labels:<?= $course_labels_json ?>,
-    datasets:[{data:<?= $course_counts_json ?>,backgroundColor:['#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#ff66b2','#20c997']}]
-  },
+  data:{labels:<?= $course_labels_json ?>,datasets:[{data:<?= $course_counts_json ?>,backgroundColor:['#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#ff66b2','#20c997']}]},
   options:{plugins:{legend:{position:'bottom'}}}
 });
 new Chart(document.getElementById('genderChart'), {
