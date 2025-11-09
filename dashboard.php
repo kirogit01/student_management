@@ -1,7 +1,7 @@
 <?php
 session_start();
 include("db.php");
-require('fpdf.php'); // Make sure fpdf.php is in the same folder
+require('fpdf.php');
 
 // ✅ Only admin can access
 if(!isset($_SESSION['role']) || $_SESSION['role'] != "admin"){
@@ -180,9 +180,9 @@ canvas{max-width:100%;}
 
 <!-- Attendance Reports -->
 <h3 style="color:#007bff;margin-top:30px;">📄 Attendance Reports</h3>
-<form method="POST" style="margin-bottom:20px;">
+<form method="POST" id="reportForm" style="margin-bottom:20px;">
     <label>Grade:</label>
-    <select name="grade" required>
+    <select name="grade" id="gradeSelect" required>
         <option value="">--Select Grade--</option>
         <?php
         $grades = mysqli_query($conn, "SELECT DISTINCT grade FROM students ORDER BY grade ASC");
@@ -191,12 +191,17 @@ canvas{max-width:100%;}
         }
         ?>
     </select>
+
     <label>Date (Daily):</label>
-    <input type="date" name="date" value="<?= date('Y-m-d') ?>">
+    <input type="date" id="dailyDate" name="date" value="<?= date('Y-m-d') ?>">
+
     <label>Month (Monthly):</label>
-    <input type="month" name="month" value="<?= date('Y-m') ?>">
-    <button type="submit" name="daily_report">📄 Download Daily PDF</button>
-    <button type="submit" name="monthly_report">📄 Download Monthly PDF</button>
+    <input type="month" id="monthlyMonth" name="month" value="<?= date('Y-m') ?>">
+
+    <button type="submit" name="daily_report" id="dailyBtn" disabled>📄 Download Daily PDF</button>
+    <button type="submit" name="monthly_report" id="monthlyBtn" disabled>📄 Download Monthly PDF</button>
+
+    <p id="attendanceMsg" style="color:#dc3545;font-weight:500;margin-top:10px;"></p>
 </form>
 
 <!-- Students Table -->
@@ -244,7 +249,9 @@ canvas{max-width:100%;}
 </div>
 
 </div>
+
 <script>
+// --- Chart.js setup ---
 new Chart(document.getElementById('courseChart'), {
   type:'doughnut',
   data:{labels:<?= $course_labels_json ?>,datasets:[{data:<?= $course_counts_json ?>,backgroundColor:['#007bff','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#ff66b2','#20c997']}]},
@@ -260,6 +267,46 @@ new Chart(document.getElementById('gradeChart'), {
   data:{labels:<?= $grade_labels_json ?>,datasets:[{label:'Number of Students',data:<?= $grade_counts_json ?>,backgroundColor:'#17a2b8'}]},
   options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
 });
+
+// --- Attendance check via AJAX ---
+async function checkAttendance(type) {
+  const grade = document.getElementById('gradeSelect').value;
+  const date = type === 'daily'
+    ? document.getElementById('dailyDate').value
+    : document.getElementById('monthlyMonth').value;
+
+  const dailyBtn = document.getElementById('dailyBtn');
+  const monthlyBtn = document.getElementById('monthlyBtn');
+  const msg = document.getElementById('attendanceMsg');
+
+  if (!grade) {
+    msg.textContent = '⚠️ Please select a grade.';
+    dailyBtn.disabled = true;
+    monthlyBtn.disabled = true;
+    return;
+  }
+
+  const res = await fetch(`check_attendance.php?grade=${grade}&type=${type}&date=${date}`);
+  const text = await res.text();
+
+  if (text.trim() === 'exists') {
+    msg.textContent = '✅ Attendance available. You can download the report.';
+    if (type === 'daily') dailyBtn.disabled = false;
+    else monthlyBtn.disabled = false;
+  } else {
+    msg.textContent = '⚠️ Attendance not yet submitted by teacher.';
+    if (type === 'daily') dailyBtn.disabled = true;
+    else monthlyBtn.disabled = true;
+  }
+}
+
+document.getElementById('gradeSelect').addEventListener('change', () => {
+  checkAttendance('daily');
+  checkAttendance('monthly');
+});
+document.getElementById('dailyDate').addEventListener('change', () => checkAttendance('daily'));
+document.getElementById('monthlyMonth').addEventListener('change', () => checkAttendance('monthly'));
 </script>
+
 </body>
 </html>
