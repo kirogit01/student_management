@@ -7,8 +7,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] != "admin") {
     exit();
 }
 
-
-// --- Handle teacher search ---
+// Handle search
 $search_query = "";
 if(isset($_GET['search']) && !empty(trim($_GET['search']))){
     $search_query = mysqli_real_escape_string($conn, $_GET['search']);
@@ -17,6 +16,7 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))){
         OR name LIKE '%$search_query%'
         OR grade LIKE '%$search_query%'
         OR subject LIKE '%$search_query%'
+        OR phone_number LIKE '%$search_query%'
         ORDER BY id DESC");
 } else {
     $teachers = mysqli_query($conn, "SELECT * FROM teachers ORDER BY id DESC");
@@ -29,45 +29,85 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))){
 <title>👩‍🏫 Teachers Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ===== General Reset ===== */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f8fafc;color:#333;line-height:1.6;padding:20px;}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-header h2{color:#6f42c1;}
-header a.btn{background:#28a745;color:white;padding:8px 14px;text-decoration:none;border-radius:6px;font-size:14px;}
-header a.btn:hover{background:#218838;}
-.search-form{margin-left:auto;display:flex;gap:10px;}
-.search-form input[type=text]{padding:6px 10px;border:1px solid #ccc;border-radius:6px;min-width:200px;}
-.search-form button{background:#007bff;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;}
-.search-form button:hover{background:#0056b3;}
-table{width:100%;border-collapse:collapse;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:10px;overflow:hidden;margin-top:15px;}
-th,td{padding:12px;text-align:center;}
-th{background:#6f42c1;color:white;}
-tr:nth-child(even){background:#f8f9fa;}
-tr:hover{background:#e9f3ff;}
-a{text-decoration:none;padding:6px 10px;border-radius:5px;}
-a.edit{background:#ffc107;color:black;}
-a.delete{background:#dc3545;color:white;}
-a.back{background:#007bff;color:white;}
+body{background:#f4f6f9;color:#333;line-height:1.6;}
+
+/* ===== Container ===== */
+.container{max-width:1200px;margin:40px auto;padding:20px;}
+
+/* ===== Header ===== */
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+header h2{color:#4e73df;font-weight:600;font-size:28px;}
+header a.btn{background:#1cc88a;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-size:14px;transition:0.3s;}
+header a.btn:hover{background:#17a673;}
+
+/* ===== Search Form ===== */
+.search-form{display:flex;gap:10px;}
+.search-form input[type=text]{padding:8px 12px;border:1px solid #ccc;border-radius:6px;min-width:250px;}
+.search-form button{background:#4e73df;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;transition:0.3s;}
+.search-form button:hover{background:#2e59d9;}
+
+/* ===== Back Button ===== */
+a.back{display:inline-block;margin-bottom:15px;color:#4e73df;text-decoration:none;font-weight:500;transition:0.3s;}
+a.back:hover{color:#224abe;}
+
+/* ===== Table Styles ===== */
+table{width:100%;border-collapse:collapse;background:white;box-shadow:0 4px 12px rgba(0,0,0,0.05);border-radius:10px;overflow:hidden;}
+th, td{padding:15px;text-align:center;}
+th{background:#4e73df;color:white;font-weight:500;text-transform:uppercase;}
+tr:nth-child(even){background:#f8f9fc;}
+tr:hover{background:#e2e6ea;transition:0.3s;}
+td a.edit{background:#f6c23e;color:black;padding:6px 12px;border-radius:5px;transition:0.3s;}
+td a.edit:hover{background:#dda20a;color:white;}
+td a.delete{background:#e74a3b;color:white;padding:6px 12px;border-radius:5px;transition:0.3s;}
+td a.delete:hover{background:#c12e2a;color:white;}
+td a.view{background:#36b9cc;color:white;padding:6px 12px;border-radius:5px;transition:0.3s;}
+td a.view:hover{background:#258faf;color:white;}
+
+/* ===== Responsive ===== */
+@media screen and (max-width: 768px){
+    table, thead, tbody, th, td, tr{display:block;}
+    th{position:absolute;top:-9999px;left:-9999px;}
+    tr{margin-bottom:15px;}
+    td{position:relative;padding-left:50%;text-align:left;}
+    td:before{position:absolute;top:12px;left:12px;width:45%;white-space:nowrap;font-weight:600;}
+    td:nth-of-type(1):before{content:"ID";}
+    td:nth-of-type(2):before{content:"Username";}
+    td:nth-of-type(3):before{content:"Name";}
+    td:nth-of-type(4):before{content:"Email";}
+    td:nth-of-type(5):before{content:"Phone Number";}
+    td:nth-of-type(6):before{content:"Grade";}
+    td:nth-of-type(7):before{content:"Subject";}
+    td:nth-of-type(8):before{content:"Action";}
+}
 </style>
 </head>
 <body>
-
+<div class="container">
 <header>
-    <h2>👩‍🏫 Teachers Details</h2>
-    <div style="display:flex;gap:10px;">
+    <h2>👩‍🏫 Teachers Dashboard</h2>
+    <div style="display:flex;gap:10px;align-items:center;">
         <a href="add_teacher.php" class="btn">➕ Add New Teacher</a>
         <form method="GET" class="search-form">
-            <input type="text" name="search" placeholder="Search Username, Name, Grade, Subject" value="<?= htmlspecialchars($search_query) ?>">
+            <input type="text" name="search" placeholder="Search Username, Name, Grade, Subject, Phone" value="<?= htmlspecialchars($search_query) ?>">
             <button type="submit">Search</button>
         </form>
     </div>
 </header>
 
-<a href="dashboard.php" class="back">⬅️ Back to Dashboard</a>
+<a href="dashboard.php" class="back">⬅️ Back to Admin Dashboard</a>
 
 <table>
 <tr>
-<th>ID</th><th>Username</th><th>Name</th><th>Email</th><th>Grade</th><th>Subject</th><th>Action</th>
+<th>ID</th>
+<th>Username</th>
+<th>Name</th>
+<th>Email</th>
+<th>Phone Number</th>
+<th>Grade</th>
+<th>Subject</th>
+<th>Action</th>
 </tr>
 <?php if(mysqli_num_rows($teachers) > 0): ?>
 <?php while($t = mysqli_fetch_assoc($teachers)): ?>
@@ -76,6 +116,7 @@ a.back{background:#007bff;color:white;}
 <td><?= htmlspecialchars($t['username']) ?></td>
 <td><?= htmlspecialchars($t['name']) ?></td>
 <td><?= htmlspecialchars($t['email']) ?></td>
+<td><?= htmlspecialchars($t['phone_number']) ?></td>
 <td><?= htmlspecialchars($t['grade']) ?></td>
 <td><?= htmlspecialchars($t['subject']) ?></td>
 <td>
@@ -85,9 +126,9 @@ a.back{background:#007bff;color:white;}
 </tr>
 <?php endwhile; ?>
 <?php else: ?>
-<tr><td colspan="7">❌ No teachers found.</td></tr>
+<tr><td colspan="8">❌ No teachers found.</td></tr>
 <?php endif; ?>
 </table>
-
+</div>
 </body>
 </html>
