@@ -26,67 +26,95 @@ if(isset($_GET['search']) && !empty(trim($_GET['search']))){
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>👩‍🏫 Teachers Dashboard</title>
+<title>👩‍🏫 Teachers Details</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ===== General Reset ===== */
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f4f6f9;color:#333;line-height:1.6;}
+body{background:#f5f6fa;color:#333;line-height:1.6;}
+.container{max-width:1300px;margin:40px auto;padding:20px;}
 
-/* ===== Container ===== */
-.container{max-width:1200px;margin:40px auto;padding:20px;}
-
-/* ===== Header ===== */
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
-header h2{color:#4e73df;font-weight:600;font-size:28px;}
-header a.btn{background:#1cc88a;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;font-size:14px;transition:0.3s;}
-header a.btn:hover{background:#17a673;}
-
-/* ===== Search Form ===== */
-.search-form{display:flex;gap:10px;}
-.search-form input[type=text]{padding:8px 12px;border:1px solid #ccc;border-radius:6px;min-width:250px;}
-.search-form button{background:#4e73df;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;transition:0.3s;}
-.search-form button:hover{background:#2e59d9;}
-
-/* ===== Back Button ===== */
-a.back{display:inline-block;margin-bottom:15px;color:#4e73df;text-decoration:none;font-weight:500;transition:0.3s;}
-a.back:hover{color:#224abe;}
-
-/* ===== Table Styles ===== */
-table{width:100%;border-collapse:collapse;background:white;box-shadow:0 4px 12px rgba(0,0,0,0.05);border-radius:10px;overflow:hidden;}
-th, td{padding:15px;text-align:center;}
-th{background:#4e73df;color:white;font-weight:500;text-transform:uppercase;}
-tr:nth-child(even){background:#f8f9fc;}
-tr:hover{background:#e2e6ea;transition:0.3s;}
-td a.edit{background:#f6c23e;color:black;padding:6px 12px;border-radius:5px;transition:0.3s;}
-td a.edit:hover{background:#dda20a;color:white;}
-td a.delete{background:#e74a3b;color:white;padding:6px 12px;border-radius:5px;transition:0.3s;}
-td a.delete:hover{background:#c12e2a;color:white;}
-td a.view{background:#36b9cc;color:white;padding:6px 12px;border-radius:5px;transition:0.3s;}
-td a.view:hover{background:#258faf;color:white;}
-
-/* ===== Responsive ===== */
-@media screen and (max-width: 768px){
-    table, thead, tbody, th, td, tr{display:block;}
-    th{position:absolute;top:-9999px;left:-9999px;}
-    tr{margin-bottom:15px;}
-    td{position:relative;padding-left:50%;text-align:left;}
-    td:before{position:absolute;top:12px;left:12px;width:45%;white-space:nowrap;font-weight:600;}
-    td:nth-of-type(1):before{content:"ID";}
-    td:nth-of-type(2):before{content:"Username";}
-    td:nth-of-type(3):before{content:"Name";}
-    td:nth-of-type(4):before{content:"Email";}
-    td:nth-of-type(5):before{content:"Phone Number";}
-    td:nth-of-type(6):before{content:"Grade";}
-    td:nth-of-type(7):before{content:"Subject";}
-    td:nth-of-type(8):before{content:"Action";}
+/* HEADER */
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    border:1px solid #e0e0e0;
 }
+header h2{
+    color:#4A90E2;
+    font-size:26px;
+    font-weight:600;
+}
+
+.btn{
+    background:#4A90E2;
+    color:white;
+    padding:10px 16px;
+    text-decoration:none;
+    border-radius:6px;
+    transition:0.25s;
+}
+.btn:hover{background:#3277c7;}
+
+.search-form{display:flex;gap:10px;}
+.search-form input{
+    padding:8px 12px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    min-width:260px;
+}
+.search-form button{
+    background:#4A90E2;
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    transition:0.25s;
+}
+.search-form button:hover{background:#3277c7;}
+
+a.back{
+    display:inline-block;
+    margin:15px 0;
+    color:#4A90E2;
+    text-decoration:none;
+    font-weight:500;
+}
+a.back:hover{color:#2762a3;}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+th,td{padding:14px;text-align:center;font-size:14px;}
+th{background:#4A90E2;color:white;font-weight:500;}
+tr:nth-child(even){background:#fafafa;}
+tr:hover{background:#eef4ff;}
+
+.edit{background:#f0d67c;color:#000;padding:7px 12px;border-radius:6px;}
+.edit:hover{background:#c9a947;color:white;}
+
+.delete{background:#e07a7a;color:white;padding:7px 12px;border-radius:6px;}
+.delete:hover{background:#c23f3f;}
+
+.view{background:#36b9cc;color:white;padding:7px 12px;border-radius:6px;}
+.view:hover{background:#258faf;}
 </style>
+
 </head>
 <body>
 <div class="container">
 <header>
-    <h2>👩‍🏫 Teachers Dashboard</h2>
+    <h2>👩‍🏫 Teachers Details</h2>
     <div style="display:flex;gap:10px;align-items:center;">
         <a href="add_teacher.php" class="btn">➕ Add New Teacher</a>
         <form method="GET" class="search-form">

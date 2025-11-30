@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
@@ -11,56 +12,57 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Dashboard</title>
+
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f3f3f3;
+        font-family: 'Poppins', sans-serif;
+        background: #f4f5f7;
         margin: 0;
         padding: 0;
+        color: #333;
     }
 
+    /* NAVBAR */
     .navbar {
-        background-color: #007bff;
+        background: #2c3e50;
         color: white;
-        padding: 15px 30px;
+        padding: 18px 40px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
     .navbar h1 {
-        font-size: 22px;
+        font-size: 24px;
         margin: 0;
+        font-weight: 600;
     }
 
     .navbar a {
         color: white;
         text-decoration: none;
-        background-color: #0056b3;
-        padding: 8px 14px;
-        border-radius: 5px;
-        transition: 0.3s;
+        padding: 10px 18px;
+        border-radius: 6px;
+        background: #2980b9;
+        font-weight: 500;
     }
 
-    .navbar a:hover {
-        background-color: #003d80;
-    }
-
+    /* MAIN CONTAINER */
     .container {
         max-width: 900px;
         margin: 60px auto;
-        background-color: white;
-        border-radius: 10px;
+        background: white;
+        border-radius: 12px;
         padding: 40px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        box-shadow: 0px 6px 15px rgba(0,0,0,0.05);
         text-align: center;
     }
 
     h2 {
-        color: #333;
+        color: #2c3e50;
         font-size: 26px;
-        margin-bottom: 40px;
+        font-weight: 600;
+        margin-bottom: 35px;
     }
 
     .menu {
@@ -68,33 +70,36 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
         justify-content: center;
         flex-wrap: wrap;
         gap: 20px;
+        margin-top: 20px;
     }
 
     .menu a {
         text-decoration: none;
-        display: inline-block;
-        padding: 15px 25px;
+        width: 220px;
+        padding: 18px;
         font-size: 18px;
-        background-color: #007bff;
+        background: #ecf0f1;
+        color: #2c3e50;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0px 3px 8px rgba(0,0,0,0.05);
+        border-left: 5px solid #2980b9;
+    }
+
+    .menu a.logout {
+        background: #e74c3c;
         color: white;
-        border-radius: 8px;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-        transition: 0.3s;
+        border-left: 5px solid #c0392b;
     }
 
-    .menu a:hover {
-        background-color: #0056b3;
-        transform: translateY(-3px);
-    }
-
-    .logout {
-        background-color: #dc3545 !important;
-    }
-
-    .logout:hover {
-        background-color: #a71d2a !important;
+    /* RESPONSIVE */
+    @media(max-width: 600px){
+        .menu a {
+            width: 100%;
+        }
     }
 </style>
+
 </head>
 <body>
 
@@ -104,8 +109,9 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
 </div>
 
 <div class="container">
-    <h2>👩‍🏫 Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'Teacher'); ?>!</h2>
-
+    <h2>👩‍🏫 Welcome, 
+        <?= isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : "Teacher"; ?>!
+    </h2>
 
     <div class="menu">
         <a href="add_attendance.php">📌 Mark Attendance</a>

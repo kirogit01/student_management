@@ -133,30 +133,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <title>📊 Admin Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f8fafc;color:#333;line-height:1.6;}
-.container{max-width:1300px;margin:40px auto;padding:20px;}
-header{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#007bff,#00c6ff);color:white;padding:15px 25px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,0.1);}
-header h2{font-weight:600;}
-.action-bar{margin:20px 0;display:flex;flex-wrap:wrap;gap:10px;}
-.action-bar a{background:#007bff;color:white;padding:8px 14px;text-decoration:none;border-radius:6px;font-size:14px;font-weight:500;transition:0.3s;}
-.action-bar a:hover{background:#0056b3;}
-.search-form{margin-left:auto;display:flex;gap:10px;}
-.search-form input[type=text]{padding:8px 10px;border:1px solid #ccc;border-radius:6px;min-width:250px;}
-.search-form button{background:#28a745;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;transition:0.3s;}
-.search-form button:hover{background:#218838;}
-table{width:100%;border-collapse:collapse;background:white;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:10px;overflow:hidden;margin-top:15px;}
-th,td{padding:12px;text-align:center;}
-th{background:#007bff;color:white;}
-tr:nth-child(even){background:#f8f9fa;}
-tr:hover{background:#e9f3ff;}
-.charts-wrapper{display:flex;flex-wrap:wrap;gap:20px;margin-top:40px;}
-.chart-container{flex:1 1 300px;min-width:300px;background:white;padding:20px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
-.chart-container h3{text-align:center;color:#007bff;margin-bottom:10px;}
-canvas{max-width:100%;}
-@media(max-width:768px){header{flex-direction:column;gap:10px;text-align:center;}.action-bar{flex-direction:column;align-items:flex-start;}.search-form{margin-left:0;}}
-</style>
+<link rel= "stylesheet" href="adminDashboard.css">
 </head>
 <body>
 <div class="container">
