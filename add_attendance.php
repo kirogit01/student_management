@@ -158,16 +158,155 @@ if(isset($_GET['grade'])){
 <head>
 <title>📌 Mark Attendance</title>
 <style>
-body{ font-family:Arial; background:#f3f3f3; padding:20px; }
-.container{ background:white; width:80%; margin:auto; padding:20px; border-radius:10px; }
-table{ width:100%; border-collapse:collapse; margin-top:20px; }
-th,td{ border:1px solid #ccc; padding:10px; text-align:center; }
-th{ background:#007bff; color:white; }
-button, select, input{ padding:8px; border-radius:5px; margin-right:5px; }
-.alert{ background:#ffdddd; color:#d00; padding:10px; border-left:5px solid #d00; margin-bottom:15px; }
-.success{ background:#ddffdd; color:#090; padding:10px; border-left:5px solid #090; margin-bottom:15px; }
-.status-present{ color:green; font-weight:bold; }
-.status-absent{ color:red; font-weight:bold; }
+
+/* ====== GENERAL ====== */
+body {
+font-family: 'Poppins', sans-serif;
+background: #f5f6fa;
+color: #333;
+margin: 0;
+padding: 0;
+}
+
+.container {
+background: #fff;
+max-width: 900px;
+margin: 40px auto;
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ====== HEADINGS ====== */
+h2 {
+color: #4A90E2;
+margin-bottom: 20px;
+}
+
+/* ====== FORM ELEMENTS ====== */
+form label {
+font-weight: 500;
+margin-right: 10px;
+}
+
+select, input[type=date], input[type=month] {
+padding: 8px 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+font-size: 14px;
+margin-right: 10px;
+}
+
+button {
+padding: 8px 16px;
+border-radius: 6px;
+border: none;
+font-weight: 500;
+cursor: pointer;
+transition: 0.25s;
+}
+
+button:hover:not(:disabled) {
+opacity: 0.9;
+}
+
+button:disabled {
+background: #b5c9e5;
+cursor: not-allowed;
+}
+
+/* ====== ALERTS ====== */
+.alert {
+background: #fff3cd;
+color: #856404;
+border-left: 5px solid #ffeeba;
+padding: 12px 15px;
+border-radius: 6px;
+margin-bottom: 15px;
+}
+
+.success {
+background: #d4edda;
+color: #155724;
+border-left: 5px solid #c3e6cb;
+padding: 12px 15px;
+border-radius: 6px;
+margin-bottom: 15px;
+}
+
+/* ====== TABLE ====== */
+table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 20px;
+border-radius: 8px;
+overflow: hidden;
+box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+padding: 12px;
+text-align: center;
+}
+
+th {
+background: #4A90E2;
+color: white;
+font-weight: 500;
+}
+
+tr:nth-child(even) {
+background: #f9f9f9;
+}
+
+tr:hover {
+background: #eef4ff;
+}
+
+/* ====== STATUS LABELS ====== */
+.status-present {
+color: #28a745;
+font-weight: 600;
+}
+
+.status-absent {
+color: #dc3545;
+font-weight: 600;
+}
+
+/* ====== RADIO BUTTONS ====== */
+input[type=radio] {
+margin-right: 5px;
+}
+
+/* ====== PROFESSIONAL BUTTONS ====== */
+button[name="submit_attendance"] {
+background: #4A90E2;
+color: #fff;
+}
+
+button[name="daily_report"], button[name="monthly_report"] {
+background: #17a2b8;
+color: #fff;
+margin-right: 10px;
+}
+
+/* ====== RESPONSIVE ====== */
+@media(max-width:768px){
+.container {
+width: 95%;
+padding: 20px;
+}
+
+```
+select, input[type=date], input[type=month], button {
+    margin-top: 10px;
+    width: 100%;
+}
+```
+
+}
+
 </style>
 </head>
 

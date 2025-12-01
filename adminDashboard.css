@@ -1,4 +1,4 @@
-<style>
+
 *{
     margin:0;
     padding:0;
@@ -194,6 +194,8 @@ form button:hover:not(:disabled){
     background:#3277c7;
 }
 
+
+
 /* ========= MOBILE ========= */
 @media(max-width:768px){
     header{
@@ -211,4 +213,9 @@ form button:hover:not(:disabled){
         justify-content:flex-start;
     }
 }
-</style>
+
+
+
+
+
+

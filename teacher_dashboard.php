@@ -92,6 +92,46 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
         border-left: 5px solid #c0392b;
     }
 
+    .coming-soon {
+     display: inline-flex;
+     align-items: center;
+     gap: 6px;
+     background: #f0f0f0;
+     color: #6c757d;
+     font-weight: 600;
+     padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    transition: all 0.25s;
+    cursor: not-allowed; /* indicates disabled */
+    }
+
+       .coming-soon:hover {
+         background: #e9ecef;
+         color: #6c757d;
+        }
+
+     .coming-soon .tag {
+        display: inline-flex;
+        align-items: center;
+        background: #e8ffe8;
+        color: #28a745;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        border: 1px solid #28a745;
+      }
+
+   .coming-soon .tag .dot {
+     width: 6px;
+     height: 6px;
+     background: #28a745;
+     border-radius: 50%;
+     margin-right: 4px;
+    }
+
     /* RESPONSIVE */
     @media(max-width: 600px){
         .menu a {
@@ -115,7 +155,12 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != 'teacher'){
 
     <div class="menu">
         <a href="add_attendance.php">📌 Mark Attendance</a>
-        <a href="addmark.php">📝 Add Marks</a>
+        <a href="#" class="coming-soon">
+           Add Marks
+           <span class="tag">
+               <span class="dot"></span> Coming Soon
+          </span>
+        </a>
         <a href="view_reports.php">📄 View Reports</a>
         <a href="logout.php" class="logout">🚪 Logout</a>
     </div>
