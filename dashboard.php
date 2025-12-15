@@ -9,6 +9,10 @@ if(!isset($_SESSION['role']) || $_SESSION['role'] != "admin"){
     exit;
 }
 
+/* ================= TOTAL STUDENTS ================= */
+$total_students_res = mysqli_query($conn, "SELECT COUNT(*) AS total FROM students");
+$total_students = mysqli_fetch_assoc($total_students_res)['total'];
+
 // --- Handle student search ---
 $search_query = "";
 if(isset($_GET['search']) && !empty(trim($_GET['search']))){
@@ -114,14 +118,51 @@ function generate_pdf($conn, $grade, $type, $date_or_month){
     $pdf->Output('D', $filename);
     exit;
 }
+/* ================= STUDENTS PDF ================= */
+function generate_students_pdf($conn){
+    $pdf = new FPDF('L','mm','A4');
+    $pdf->AddPage();
+    $pdf->SetFont('Arial','B',16);
+    $pdf->Cell(0,10,'All Students Details',0,1,'C');
+    $pdf->Ln(5);
 
-// --- Handle PDF Download ---
+    $pdf->SetFont('Arial','B',10);
+    $headers = ['ID','Name','Email','Phone','Course','Gender','Address','Grade'];
+    $widths = [15,40,55,30,35,20,60,20];
+
+    foreach($headers as $i => $h){
+        $pdf->Cell($widths[$i],8,$h,1);
+    }
+    $pdf->Ln();
+
+    $pdf->SetFont('Arial','',9);
+    $res = mysqli_query($conn, "SELECT * FROM students ORDER BY id DESC");
+    while($row = mysqli_fetch_assoc($res)){
+        $pdf->Cell(15,8,$row['id'],1);
+        $pdf->Cell(40,8,$row['name'],1);
+        $pdf->Cell(55,8,$row['email'],1);
+        $pdf->Cell(30,8,$row['phone'],1);
+        $pdf->Cell(35,8,$row['course'],1);
+        $pdf->Cell(20,8,$row['gender'],1);
+        $pdf->Cell(60,8,$row['address'],1);
+        $pdf->Cell(20,8,$row['grade'],1);
+        $pdf->Ln();
+    }
+
+    $pdf->Output('D','Students_Details.pdf');
+    exit;
+}
+
+/* ================= HANDLE POST ================= */
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    if(isset($_POST['daily_report']) && !empty($_POST['grade']) && !empty($_POST['date'])){
+    if(isset($_POST['daily_report'])){
         generate_pdf($conn, $_POST['grade'], 'daily', $_POST['date']);
     }
-    if(isset($_POST['monthly_report']) && !empty($_POST['grade']) && !empty($_POST['month'])){
+    if(isset($_POST['monthly_report'])){
         generate_pdf($conn, $_POST['grade'], 'monthly', $_POST['month']);
+    }
+    if(isset($_POST['students_pdf'])){
+        generate_students_pdf($conn);
     }
 }
 ?>
@@ -175,6 +216,23 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
      border-radius: 50%;
      margin-right: 4px;
     }
+
+    .stats-cards{display:flex;gap:20px;margin:20px 0;}
+    .stat-card{background:#fff;padding:20px 30px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.08);}
+    .stat-card h4{color:#4A90E2;font-size:15px;}
+    .stat-card p{font-size:32px;font-weight:700;color:#007bff;}
+    .students-pdf-btn{
+        background:#fff;
+        border:1px solid #ddd;
+        color:#333;
+        padding:8px 14px;
+        text-decoration:none;
+        border-radius:8px;
+        font-size:14px;
+        font-weight:500;
+        transition:0.25s;
+        }
+    
 </style>
 </head>
 <body>
@@ -185,6 +243,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   <div>Welcome, <strong><?= htmlspecialchars($_SESSION['user']); ?></strong> 👋</div>
 </header>
 
+
 <div class="action-bar">
   <a href="add_student.php">➕ Add Student</a>
   <a href="teachers.php">👩‍🏫 Teachers Details</a>
@@ -194,6 +253,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         <span class="dot"></span> Coming Soon
     </span>
   </a>
+  <form method="POST" style="display:inline;">
+    <button name="students_pdf" class="students-pdf-btn">📄 Download Students PDF</button>
+  </form>
   <a href="export.php">⬇️ Export to Excel</a>
   <a href="logout.php">🚪 Logout</a>
   <form method="GET" class="search-form">
@@ -230,6 +292,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 <!-- Students Table -->
 <h3 style="color:#007bff;margin-bottom:10px;">👩‍🎓 All Students</h3>
+
 <table>
 <tr>
 <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Course</th><th>Gender</th><th>Address</th><th>Grade</th><th>Action</th>
@@ -255,6 +318,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <tr><td colspan="9">❌ No students found.</td></tr>
 <?php endif; ?>
 </table>
+<div class="stats-cards">
+  <div class="stat-card">
+    <h4>👩‍🎓 Total No of  Students</h4>
+    <p><?= $total_students ?></p>
+  </div>
+</div>
 
 <!-- Charts Section -->
 <div class="charts-wrapper">
