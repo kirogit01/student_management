@@ -290,12 +290,42 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <p id="attendanceMsg" style="color:#dc3545;font-weight:500;margin-top:10px;"></p>
 </form>
 
+<div class="stats-cards">
+  <div class="stat-card">
+    <h4>👩‍🎓 Total No of  Students</h4>
+    <p><?= $total_students ?></p>
+  </div>
+</div>
+
+<!-- Charts Section -->
+ <div class="charts-wrapper">
+<div class="chart-container">
+<h3>🎯 Students Per Section</h3>
+<canvas id="courseChart"></canvas>
+</div>
+<div class="chart-container">
+<h3>⚧ Gender Distribution</h3>
+<canvas id="genderChart"></canvas>
+</div>
+<div class="chart-container">
+<h3>📊 Students Per Grade</h3>
+<canvas id="gradeChart"></canvas>
+</div>
+</div>
+
+</div>
+
+
+
+
+
+
 <!-- Students Table -->
 <h3 style="color:#007bff;margin-bottom:10px;">👩‍🎓 All Students</h3>
 
 <table>
 <tr>
-<th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Course</th><th>Gender</th><th>Address</th><th>Grade</th><th>Action</th>
+<th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Section</th><th>Gender</th><th>Address</th><th>Grade</th><th>Action</th>
 </tr>
 <?php if(mysqli_num_rows($students) > 0): ?>
 <?php while($s = mysqli_fetch_assoc($students)): ?>
@@ -318,30 +348,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 <tr><td colspan="9">❌ No students found.</td></tr>
 <?php endif; ?>
 </table>
-<div class="stats-cards">
-  <div class="stat-card">
-    <h4>👩‍🎓 Total No of  Students</h4>
-    <p><?= $total_students ?></p>
-  </div>
-</div>
 
-<!-- Charts Section -->
-<div class="charts-wrapper">
-<div class="chart-container">
-<h3>🎯 Students Per Course</h3>
-<canvas id="courseChart"></canvas>
-</div>
-<div class="chart-container">
-<h3>⚧ Gender Distribution</h3>
-<canvas id="genderChart"></canvas>
-</div>
-<div class="chart-container">
-<h3>📊 Students Per Grade</h3>
-<canvas id="gradeChart"></canvas>
-</div>
-</div>
 
-</div>
+
+
 
 <script>
 // --- Chart.js setup ---
